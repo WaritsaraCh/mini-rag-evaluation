@@ -7,7 +7,7 @@
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mini-rag-evaluation.streamlit.app)
 
 > 🔗 **Live Demo:** [https://mini-rag-evaluation.streamlit.app](https://mini-rag-evaluation.streamlit.app/)
-> 📁 **GitHub Repo:** [https://github.com/USERNAME/mini-rag-evaluation](https://github.com/WaritsaraCh/mini-rag-evaluation)
+<!-- > 📁 **GitHub Repo:** [https://github.com/USERNAME/mini-rag-evaluation](https://github.com/WaritsaraCh/mini-rag-evaluation) -->
 
 
 ## ความสามารถหลัก
