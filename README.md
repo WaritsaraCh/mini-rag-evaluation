@@ -129,11 +129,7 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-หากพบข้อผิดพลาดว่าไม่พบโมดูล `llama_parse` หรือ `langchain_text_splitters` ให้ติดตั้งแพ็กเกจที่เกี่ยวข้องเพิ่มเติม:
-
-```bash
-pip install llama-parse langchain-text-splitters
-```
+ไฟล์ `requirements.txt` รวมแพ็กเกจหลักที่โครงการใช้แล้ว เช่น `llama-parse`, `langchain-text-splitters`, `chromadb`, `sentence-transformers`, `torch`, `streamlit` และ `google-generativeai`
 
 ## การตั้งค่าตัวแปรสภาพแวดล้อม
 
@@ -159,6 +155,15 @@ GEMINI_API_KEY=your_gemini_api_key
 ```
 
 ห้าม Commit ไฟล์ `.env` หรือเผยแพร่ API Key ในระบบควบคุมเวอร์ชัน ไฟล์ `.gitignore` ของโครงการได้ตั้งค่าให้ละเว้นไฟล์นี้แล้ว
+
+สำหรับการ Deploy บน Streamlit Community Cloud ให้กำหนดค่าใน App Settings ส่วน Secrets โดยใช้รูปแบบเดียวกัน:
+
+```toml
+LLAMA_CLOUD_API_KEY = "your_llama_cloud_api_key"
+GEMINI_API_KEY = "your_gemini_api_key"
+```
+
+ระบบรองรับการอ่าน API Key จากทั้งไฟล์ `.env` และ Streamlit Secrets
 
 ## วิธีใช้งาน
 
@@ -195,6 +200,8 @@ Mock_up_Data.pdf_page_1_chunk_1
 ```
 
 ข้อควรระวัง: สคริปต์ใช้ `collection.add()` หากรันซ้ำกับเอกสารเดิมโดยไม่ลบฐานข้อมูลเดิม อาจเกิดข้อผิดพลาดจากรหัส Chunk ซ้ำ หากต้องการสร้างดัชนีใหม่ทั้งหมด ให้สำรองข้อมูลที่จำเป็นและลบไดเรกทอรี `chroma_db/` ก่อนรันอีกครั้ง
+
+เมื่อเปิด Dashboard ระบบจะตรวจสอบ Collection `rag_evaluation_512` หาก Collection ยังไม่มีข้อมูล ระบบจะเรียก `process_documents()` จาก `src/ingest.py` เพื่อประมวลผลเอกสารใน `data/` และสร้าง Vector Store อัตโนมัติ การรัน `python src/ingest.py` ล่วงหน้ายังคงเหมาะสำหรับการเตรียมฐานข้อมูลและตรวจสอบกระบวนการนำเข้าข้อมูลโดยตรง
 
 ### ขั้นตอนที่ 3: เตรียมชุดประเมิน
 
@@ -277,7 +284,7 @@ Dashboard แบ่งเป็นสองส่วน:
 1. Live RAG Demo สำหรับป้อนคำถาม เลือกจำนวน Chunk ระหว่าง 1 ถึง 5 และดูคำตอบพร้อมแหล่งข้อมูล
 2. Evaluation Results สำหรับดูค่า Hit@K, MRR และผลเปรียบเทียบคำตอบ
 
-ต้องสร้าง `chroma_db/` ก่อนเปิด Dashboard มิฉะนั้นแอปจะไม่พบ Collection `rag_evaluation_512`
+เมื่อเริ่มทำงาน Dashboard จะเปิดหรือสร้าง Collection `rag_evaluation_512` หาก Collection ว่าง ระบบจะทำ Ingestion อัตโนมัติจากไฟล์ PDF ใน `data/` ดังนั้นต้องกำหนด `LLAMA_CLOUD_API_KEY` และมีเอกสาร PDF พร้อมใช้งาน หากมีข้อมูลใน Collection อยู่แล้ว ระบบจะนำข้อมูลเดิมมาใช้งานทันที
 
 ## ลำดับคำสั่งสำหรับการใช้งานครั้งแรก
 
@@ -303,61 +310,6 @@ streamlit run app.py
 ### `outputs/llm_eval_results.json`
 
 ประกอบด้วยรายการผลประเมินภายใต้ `eval_results` แต่ละรายการมีคำถาม คำตอบอ้างอิง คำตอบแบบ No-RAG คำตอบแบบ RAG และบริบทที่ใช้
-
-## ข้อจำกัดของโค้ดปัจจุบัน
-
-- `app.py` และ `src/evaluate_llm.py` ใช้โมเดล `gemini-3.1-flash-lite` เหมือนกัน จึงต้องตรวจสอบว่าบัญชีและ API Key ที่กำหนดมีสิทธิ์เรียกใช้โมเดลนี้
-- `src/evaluate_llm.py` บันทึกข้อมูลเป็นออบเจ็กต์ที่มีคีย์ `eval_results` และใช้ชื่อฟิลด์ `answer_rag`
-- ส่วนแสดงผล LLM ใน `app.py` คาดหวังข้อมูลระดับบนสุดเป็นรายการ และคาดหวังฟิลด์ชื่อ `answer_with_rag` ทำให้ผลจากสคริปต์ปัจจุบันอาจยังไม่แสดงใน Dashboard จนกว่าจะปรับรูปแบบข้อมูลให้ตรงกัน
-- การประเมิน LLM ยังเป็นการเปรียบเทียบเชิงคุณภาพ ไม่มีเมตริกอัตโนมัติ เช่น Faithfulness, Answer Relevance หรือ Correctness
-- การอ่าน PDF ขึ้นอยู่กับคุณภาพของเอกสารและผลจาก LlamaParse เอกสารสแกน ตาราง หรือรูปแบบซับซ้อนอาจให้ข้อความไม่สมบูรณ์
-- การสร้าง Embedding ครั้งแรกต้องดาวน์โหลดโมเดลและอาจใช้เวลา รวมถึงต้องใช้หน่วยความจำตามขนาดของเอกสาร
-
-## การแก้ปัญหาเบื้องต้น
-
-### ไม่พบ Collection ใน ChromaDB
-
-ตัวอย่างข้อผิดพลาด:
-
-```text
-Collection [rag_evaluation_512] does not exist
-```
-
-ให้ตรวจสอบว่าได้รันคำสั่งต่อไปนี้สำเร็จแล้ว:
-
-```bash
-python src/ingest.py
-```
-
-### ไม่พบ API Key
-
-ตรวจสอบว่าไฟล์ `.env` อยู่ที่ไดเรกทอรีรากของโครงการ และมีตัวแปรต่อไปนี้:
-
-```dotenv
-LLAMA_CLOUD_API_KEY=...
-GEMINI_API_KEY=...
-```
-
-หลังแก้ไข `.env` ให้หยุดและเปิดโปรแกรมใหม่เพื่อโหลดค่าล่าสุด
-
-### ไม่พบไฟล์ PDF
-
-ตรวจสอบว่ามีไฟล์นามสกุล `.pdf` อย่างน้อยหนึ่งไฟล์ใน `data/` และรันคำสั่งจากไดเรกทอรีรากของโครงการ
-
-### รหัส Chunk ซ้ำ
-
-หากรัน `ingest.py` ซ้ำกับข้อมูลเดิม ChromaDB อาจปฏิเสธรหัสที่มีอยู่แล้ว ให้สำรองข้อมูลที่จำเป็น ลบ `chroma_db/` แล้วสร้างฐานข้อมูลใหม่
-
-### Dashboard ไม่แสดงผลการประเมิน
-
-ตรวจสอบว่าได้รันสคริปต์ประเมินและมีไฟล์ต่อไปนี้:
-
-```text
-outputs/retrieval_metrics.json
-outputs/llm_eval_results.json
-```
-
-สำหรับผลประเมิน LLM ให้ตรวจสอบข้อจำกัดเรื่องโครงสร้าง JSON และชื่อฟิลด์ที่อธิบายไว้ในหัวข้อข้อจำกัดของโค้ดปัจจุบัน
 
 ## แนวทางการทดลองเพิ่มเติม
 
