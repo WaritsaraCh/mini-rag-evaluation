@@ -1,8 +1,14 @@
-# Mini RAG Evaluation
+# 🔍 Mini RAG Evaluation Project
 
 โครงการตัวอย่างสำหรับสร้างและประเมินระบบ Retrieval-Augmented Generation (RAG) จากเอกสาร PDF ภาษาไทย โดยระบบจะแปลงเนื้อหาในเอกสารเป็นเวกเตอร์ จัดเก็บใน ChromaDB ค้นหาข้อความที่เกี่ยวข้องกับคำถาม และส่งบริบทที่ค้นพบให้ Google Gemini สร้างคำตอบ
 
 โครงการนี้มีทั้งสคริปต์สำหรับประมวลผลข้อมูลและ Streamlit Dashboard สำหรับทดลองถามคำถาม รวมถึงดูผลการประเมินระบบ
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://mini-rag-evaluation.streamlit.app)
+
+> 🔗 **Live Demo:** [https://mini-rag-evaluation.streamlit.app](https://mini-rag-evaluation.streamlit.app)
+> 📁 **GitHub Repo:** [https://github.com/USERNAME/mini-rag-evaluation](https://github.com/USERNAME/mini-rag-evaluation)
+
 
 ## ความสามารถหลัก
 
