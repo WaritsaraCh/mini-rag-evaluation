@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel('gemini-3.1-flash-lite')
+model = genai.GenerativeModel('gemini-1.5-flash')
 
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_collection(name="rag_evaluation_512")
