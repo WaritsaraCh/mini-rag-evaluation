@@ -8,7 +8,6 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 
 load_dotenv()
-
 st.set_page_config(
     page_title="Mini RAG Evaluation Project",
     page_icon="🔍",
@@ -17,9 +16,20 @@ st.set_page_config(
 
 @st.cache_resource
 def load_vector_db():
-    client = chromadb.PersistentClient(path="./chroma_db")
-    collection = client.get_collection(name="rag_evaluation_512")
+    DB_PATH = "./chroma_db"
+    client = chromadb.PersistentClient(path=DB_PATH)
+    collection = client.get_or_create_collection(name="rag_evaluation_512")
     model = SentenceTransformer("BAAI/bge-m3")
+    
+    
+    if collection.count() == 0:
+        if os.path.exists("src/ingest.py"):
+            st.info("⏳ ไม่พบ Vector Store บน Cloud ระบบกำลังประมวลผล Ingestion อัตโนมัติ...")
+            from src.ingest import process_documents
+            process_documents()
+            st.success("✅ สร้าง Vector Store สำเร็จแล้ว!")
+            collection = client.get_collection(name="rag_evaluation_512")
+            
     return collection, model
 
 @st.cache_resource
@@ -27,9 +37,8 @@ def init_gemini():
     api_key = os.getenv("GEMINI_API_KEY")
     if api_key:
         genai.configure(api_key=api_key)
-        return genai.GenerativeModel("gemini-3.1-flash-lite")
+        return genai.GenerativeModel("gemini-2.5-flash")
     return None
-
 collection, embedding_model = load_vector_db()
 gemini_model = init_gemini()
 
@@ -122,14 +131,11 @@ with tab2:
         if isinstance(llm_results, list) and len(llm_results) > 0:
             df_llm = pd.DataFrame(llm_results)
             
-            # ตรวจสอบคอลัมน์ที่พร้อมใช้งาน
             required_cols = ["id", "question", "reference_answer", "answer_no_rag", "answer_with_rag"]
             available_cols = [col for col in required_cols if col in df_llm.columns]
             
-            # แสดงตารางเปรียบเทียบ
             st.dataframe(df_llm[available_cols], use_container_width=True)
             
-            # แสดงรายละเอียดทีละข้อเฉพาะเมื่อมีคอลัมน์ 'id'
             if "id" in df_llm.columns:
                 st.subheader("🔍 ตรวจสอบคำตอบทีละข้อ")
                 selected_id = st.selectbox("เลือกข้อที่ต้องการดูรายละเอียด:", df_llm["id"].tolist())

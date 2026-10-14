@@ -1,9 +1,11 @@
+llama-parse
+python-dotenv
 chromadb>=0.4.0
 sentence-transformers>=2.2.2
+torch
+torchvision
+langchain-text-splitters
 pandas>=2.0.0
 streamlit>=1.28.0
 pypdf>=3.10.0
-python-dotenv>=1.0.0
 google-generativeai>=0.3.0
-llama-cloud
-python-dotenv
