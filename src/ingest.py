@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from llama_parse import LlamaParse
 from dotenv import load_dotenv
+import streamlit as st
 
 load_dotenv()
 
@@ -18,7 +19,13 @@ collection = client.get_or_create_collection(name='rag_evaluation_512')
 
 
 def parse_pdf_with_llamaparse(pdf_path):
+    
+    api_key = os.getenv("LLAMA_CLOUD_API_KEY")
+    if not api_key and hasattr(st, "secrets") and "LLAMA_CLOUD_API_KEY" in st.secrets:
+        api_key = st.secrets["LLAMA_CLOUD_API_KEY"]
+        
     parser = LlamaParse(
+        api_key=api_key,
         result_type="markdown",
         verbose=True
     )
