@@ -1,0 +1,70 @@
+# Environment variables and local secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Packaging and build artifacts
+build/
+dist/
+downloads/
+*.egg-info/
+.eggs/
+*.egg
+pip-wheel-metadata/
+wheels/
+MANIFEST
+
+# Test, coverage, lint, and type-checker caches
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.mypy_cache/
+.pyright/
+.ruff_cache/
+.cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local application state and secrets
+.streamlit/secrets.toml
+
+# RAG-generated artifacts
+chroma_db/
+outputs/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*
+
+# IDE and editor settings
+.idea/
+.vscode/
+*.code-workspace
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
